@@ -1,0 +1,106 @@
+<p-toolbar styleClass="mb-6">
+    <ng-template #start>
+        <p-button label="Nuevo" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
+    </ng-template>   
+</p-toolbar>
+<p-table
+    #dt
+    [value]="products"
+    [paginator]="true"
+    [rows]="10"
+    [(selection)]="selectedProducts"
+    [rowHover]="true"
+    dataKey="id"
+    [globalFilterFields]="['id', 'nombre', 'precio', 'cantidadDisponible']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+>
+<ng-template #caption>
+    <p-iconfield iconPosition="left">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        #filterInput
+        pInputText
+        type="text"
+        (input)="dt.filterGlobal(filterInput.value, 'contains')"
+        placeholder="Buscar producto"
+      />
+    </p-iconfield>
+  </ng-template>
+    <ng-template #header>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Foto</th>
+            <th>Precio</th>
+            <th>Cantidad Disponible</th>
+            <th>Acciones</th>
+        </tr>
+    </ng-template>
+
+    <ng-template #body let-product>
+        <tr>
+            
+            <td>{{ product.id }}</td>
+            <td>{{ product.nombre }}</td>
+            <td>
+                <img *ngIf="product.foto" [src]="product.foto" [alt]="product.nombre" style="width: 64px" class="rounded" />
+            </td>
+            <td>{{ product.precio | currency:'USD' }}</td>
+            <td>{{ product.cantidadDisponible }}</td>
+            <td>
+                <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editProduct(product)" />
+                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteProduct(product)" />
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template #summary>
+        <div class="flex items-center justify-between">En total hay {{ products ? products.length : 0 }} productos.</div>
+    </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="productDialog" [style]="{ width: '450px' }" header="Detalles del Producto" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-6">
+            <img *ngIf="product.foto" [src]="product.foto" [alt]="product.nombre" class="block m-auto pb-4" />
+
+            <div>
+                <label for="nombre" class="block font-bold mb-3">Nombre</label>
+                <input type="text" pInputText id="nombre" [(ngModel)]="product.nombre" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !product.nombre">El nombre es obligatorio.</small>
+            </div>
+
+            <div>
+                <label for="descripcion" class="block font-bold mb-3">Descripción</label>
+                <textarea id="descripcion" pTextarea [(ngModel)]="product.descripcion" rows="3" cols="20" fluid></textarea>
+            </div>
+
+            <div class="grid grid-cols-12 gap-4">
+                <div class="col-span-6">
+                    <label for="precio" class="block font-bold mb-3">Precio</label>
+                    <p-inputnumber id="precio" [(ngModel)]="product.precio" mode="currency" currency="USD" locale="en-US" fluid />
+                </div>
+
+                <div class="col-span-6">
+                    <label for="cantidadDisponible" class="block font-bold mb-3">Cantidad Disponible</label>
+                    <p-inputnumber id="cantidadDisponible" [(ngModel)]="product.cantidadDisponible" fluid />
+                </div>
+            </div>
+
+            <div>
+                <label for="foto" class="block font-bold mb-3">URL de Foto</label>
+                <input type="text" pInputText id="foto" [(ngModel)]="product.foto" fluid />
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <p-button label="Cancelar" icon="pi pi-times" text (click)="hideDialog()" />
+        <p-button label="Guardar" icon="pi pi-check" (click)="saveProduct()" />
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{ width: '450px' }" />
+
